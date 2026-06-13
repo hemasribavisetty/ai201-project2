@@ -44,7 +44,38 @@ def handle_query(user_query: str, wardrobe_choice: str) -> tuple[str, str, str]:
            session["fit_card"].
     """
     # TODO: implement this function
-    return "Agent not yet implemented.", "", ""
+    if not user_query or not user_query.strip():
+        return "Please enter a search request.", "", ""
+
+    if wardrobe_choice == "Empty wardrobe (new user)":
+        wardrobe = get_empty_wardrobe()
+    else:
+        wardrobe = get_example_wardrobe()
+
+    session = run_agent(user_query, wardrobe)
+
+    if session["error"]:
+        return session["error"], "", ""
+
+    item = session["selected_item"]
+
+    listing_text = (
+        f"Title: {item.get('title')}\n"
+        f"Price: ${item.get('price')}\n"
+        f"Platform: {item.get('platform')}\n"
+        f"Size: {item.get('size')}\n"
+        f"Condition: {item.get('condition')}\n"
+        f"Category: {item.get('category')}\n"
+        f"Colors: {', '.join(item.get('colors', []))}\n"
+        f"Style tags: {', '.join(item.get('style_tags', []))}\n\n"
+        f"Description: {item.get('description')}"
+    )
+
+    return (
+        listing_text,
+        session["outfit_suggestion"],
+        session["fit_card"],
+    )
 
 
 # ── interface ─────────────────────────────────────────────────────────────────
